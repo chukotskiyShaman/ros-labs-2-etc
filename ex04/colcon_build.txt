@@ -1,0 +1,4 @@
+Starting >>> chukotskiy_shaman_package
+Finished <<< chukotskiy_shaman_package [1.64s]
+
+Summary: 1 package finished [1.75s]
