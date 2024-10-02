@@ -14,55 +14,55 @@
 
 import rclpy
 from rclpy.node import Node
-
 from geometry_msgs.msg import Twist
+import sys
 
-cmds = ['turn right', 'turn_left', 'move_forward', 'move_backward']
+cmds = ['turn_right', 'turn_left', 'move_forward', 'move_backward']
 
 class MinimalPublisher(Node):
 
-    def __init__(self):
+    def __init__(self, cmd):
         super().__init__('text_to_cmd_vel')
         self.publisher_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)
-        timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.execute_command(cmd)
 
-    def timer_callback(self):
-        cmd = input()
+    def execute_command(self, cmd):
         if cmd in cmds:
             msg = Twist()
             if cmd == 'move_forward':
                 msg.linear.x = 1.5
-                self.get_logger().info('Get moved')
-            if cmd == 'move_backward':
+                self.get_logger().info('Moving forward')
+            elif cmd == 'move_backward':
                 msg.linear.x = -1.5
-                self.get_logger().info('Get moved')
-            if cmd == 'turn_right':
+                self.get_logger().info('Moving backward')
+            elif cmd == 'turn_right':
                 msg.angular.z = -1.5
-                self.get_logger().info('Get rotated')
-            if cmd == 'turn_left':
+                self.get_logger().info('Turning right')
+            elif cmd == 'turn_left':
                 msg.angular.z = 1.5
-                self.get_logger().info('Get rotated')
+                self.get_logger().info('Turning left')
 
             self.publisher_.publish(msg)
         else:
             self.get_logger().info('Wrong command!')
-            
-
 
 def main(args=None):
+    if len(sys.argv) < 2:
+        print("Usage: python3 text_to_cmd_vel.py <command>")
+        return
+
+    cmd = sys.argv[1]
+
     rclpy.init(args=args)
 
-    minimal_publisher = MinimalPublisher()
+    minimal_publisher = MinimalPublisher(cmd)
 
-    rclpy.spin(minimal_publisher)
+    # Spin for a short time to allow the publisher to send the message
+    rclpy.spin_once(minimal_publisher, timeout_sec=0.1)
 
     # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
     minimal_publisher.destroy_node()
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
